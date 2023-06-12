@@ -1,0 +1,10 @@
+
+https://yuml.me/diagram/scruffy/class/samples
+https://yuml.me/diagram/scruffy/class/draw
+
+
+[tag service {bg:orange}]<rpc-[video service {bg:orange}]<-[react app {bg:yellow}]
+[mysql]<-[user service {bg:wheat}]<jwt-[video service {bg:orange}]->[message queue]<-[trim service {bg:orange}]
+[note:logs]
+[video service {bg:orange}]->[mongodb]
+[tag service {bg:orange}]->[sqlite]
