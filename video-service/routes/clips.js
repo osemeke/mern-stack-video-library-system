@@ -1,10 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const logger = require('../configs/winston-config');
-
-var clips = [
-    { id: 12, name: "System designs", tags:"software design"}
- ];
+const clips = require('../data/mocks/clips');
  
 router.get('/', async (req, res) => {
     try {
