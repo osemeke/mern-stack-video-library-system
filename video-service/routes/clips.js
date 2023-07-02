@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const logger = require('../configs/winston-config');
 
 var clips = [
     { id: 12, name: "System designs", tags:"software design"}
@@ -7,6 +8,7 @@ var clips = [
  
 router.get('/', async (req, res) => {
     try {
+        logger.log("error", "This is an error message");
         const result = await clips;
         res.status(200).send(result);
     } catch (error) {
