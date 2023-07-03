@@ -1,0 +1,14 @@
+syntax = “proto3”;
+
+package videos;
+
+service TagService {
+    rpc List(Empty) returns (Tag) {}
+}
+
+message Empty {}
+
+message Tag {
+    string id = 1;
+    string name = 2;
+}
