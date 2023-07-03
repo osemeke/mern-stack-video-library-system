@@ -36,6 +36,9 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const result = await Clip.findById(req.params.id);
+        if (!result) {
+            return res.status(404).send();
+        }
         res.status(200).json(result)
     } catch (error) {
         res.status(500).json({message: error.message})
