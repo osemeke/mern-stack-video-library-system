@@ -1,38 +1,89 @@
+const dotenv = require("dotenv").config();
+
 const express = require("express");
 const router = express.Router();
 const logger = require('../configs/winston-config');
 const clips = require('../data/mocks/clips');
- 
+
+const Clip = require('../data/mocks/mongodb/clip');
+
+
+// start mongodb on windows
+// if not exist, create path C:\data\db
+// in terminal run mongod.exe in C:\Program Files\MongoDB\Server\6.0\bin
+const mongoose = require('mongoose');
+mongoose.connect(process.env.DATABASE_URL);
+const database = mongoose.connection;
+database.on('error', (error) => {
+    console.log(error)
+})
+database.once('connected', () => {
+    console.log('MongoDb connected!');
+})
+
+// get all
 router.get('/', async (req, res) => {
     try {
-        logger.log("error", "This is an error message");
-        const result = await clips;
-        res.status(200).send(result);
+        const result = await Clip.find();
+        res.status(200).json(result) // use .json as .send is mainly for string
     } catch (error) {
-        res.status(500).send(error);
+        res.status(500).json({message: error.message})
     }
 });
- 
+
+// add
 router.post('/', async (req, res) => {
+    const data = new Clip({
+        name: req.body.name,
+        tags: req.body.tags
+    })
     try {
-        clips.push(req.body)
-        const result = await clips;
-        res.status(200).send(result);
-    } catch (error) {
-        res.status(500).send(error);
+        const saved = await data.save();
+        res.status(201).json(saved) // 201 mores specific than 200
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message })
+        logger.log("error", error.message);
     }
 });
- 
+
+// get
+router.get('/:id', async (req, res) => {
+    try {
+        const result = await Clip.findById(req.params.id);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
+});
+
+// update
+router.patch('/:id', async (req, res) => { // patch to update a single or some field
+    try {
+        const id = req.params.id;
+        const body = req.body;
+        const options = { new: true };
+        const result = await Clip.findByIdAndUpdate(
+            id, body, options
+        )
+        res.status(200).json(result)
+    }
+    catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+})
+
+// delete
 router.delete('/:id', async (req, res) => {
     try {
-        const m = clips.find(x => x.id == req.params.id)
-        console.log(m)
-        clips.pop(m)
-        const result = await clips;
-        res.status(200).send(result);
-    } catch (error) {
-        res.status(500).send(error);
+        const id = req.params.id;
+        const data = await Clip.findByIdAndDelete(id)
+        logger.log("info", `document ${data.name} has been deleted`);
+        res.json({ message: `document ${data.name} has been deleted` })
     }
-});
+    catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+})
 
 module.exports = router;
